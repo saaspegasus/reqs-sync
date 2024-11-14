@@ -12,9 +12,12 @@ def parse_requirements(requirements_file):
 
     with open(requirements_file, 'r') as f:
         for line in f:
-            # Skip empty lines and comments
+            # Skip empty lines, comments, and constraint files
             line = line.strip()
-            if not line or line.startswith('#'):
+            if (not line or
+                line.startswith('#') or
+                line.startswith('-c') or
+                line.startswith('--constraint')):
                 continue
 
             # Handle extras syntax (e.g., package[extra1,extra2])
@@ -42,11 +45,16 @@ def create_default_pyproject():
         "build-system": {
             "requires": ["setuptools>=61.0"],
             "build-backend": "setuptools.build_meta"
+        },
+        "tool": {
+            "uv": {
+                "dev-dependencies": []
+            }
         }
     }
 
 
-def update_pyproject_toml(dependencies, output_file='pyproject.toml'):
+def update_pyproject_toml(dependencies, output_file='pyproject.toml', dev=False):
     """Update or create pyproject.toml with the parsed dependencies."""
     try:
         # Try to read existing pyproject.toml
@@ -58,12 +66,24 @@ def update_pyproject_toml(dependencies, output_file='pyproject.toml'):
         pyproject_data = create_default_pyproject()
         print(f"Creating new {output_file}")
 
-    # Ensure project section exists
-    if 'project' not in pyproject_data:
-        pyproject_data['project'] = {}
+    if dev:
+        # Ensure tool.uv.dev-dependencies exists
+        if "tool" not in pyproject_data:
+            pyproject_data["tool"] = {}
+        if "uv" not in pyproject_data["tool"]:
+            pyproject_data["tool"]["uv"] = {}
+        if "dev-dependencies" not in pyproject_data["tool"]["uv"]:
+            pyproject_data["tool"]["uv"]["dev-dependencies"] = []
 
-    # Update dependencies
-    pyproject_data['project']['dependencies'] = dependencies
+        # Update dev dependencies
+        pyproject_data["tool"]["uv"]["dev-dependencies"] = dependencies
+    else:
+        # Ensure project section exists
+        if 'project' not in pyproject_data:
+            pyproject_data['project'] = {}
+
+        # Update project dependencies
+        pyproject_data['project']['dependencies'] = dependencies
 
     # Write updated pyproject.toml
     with open(output_file, 'wb') as f:
