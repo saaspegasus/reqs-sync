@@ -46,10 +46,8 @@ def create_default_pyproject():
             "requires": ["setuptools>=61.0"],
             "build-backend": "setuptools.build_meta"
         },
-        "tool": {
-            "uv": {
-                "dev-dependencies": []
-            }
+        "dependency-groups": {
+            "dev": []
         }
     }
 
@@ -67,16 +65,14 @@ def update_pyproject_toml(dependencies, output_file='pyproject.toml', dev=False)
         print(f"Creating new {output_file}")
 
     if dev:
-        # Ensure tool.uv.dev-dependencies exists
-        if "tool" not in pyproject_data:
-            pyproject_data["tool"] = {}
-        if "uv" not in pyproject_data["tool"]:
-            pyproject_data["tool"]["uv"] = {}
-        if "dev-dependencies" not in pyproject_data["tool"]["uv"]:
-            pyproject_data["tool"]["uv"]["dev-dependencies"] = []
+        # Ensure dependency-groups.dev exists
+        if "dependency-groups" not in pyproject_data:
+            pyproject_data["dependency-groups"] = {}
+        if "dev" not in pyproject_data["dependency-groups"]:
+            pyproject_data["dependency-groups"]["dev"] = []
 
         # Update dev dependencies
-        pyproject_data["tool"]["uv"]["dev-dependencies"] = dependencies
+        pyproject_data["dependency-groups"]["dev"] = dependencies
     else:
         # Ensure project section exists
         if 'project' not in pyproject_data:
