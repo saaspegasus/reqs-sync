@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-import sys
-import re
 import tomli
 import tomli_w
 from pathlib import Path
@@ -46,33 +44,36 @@ def create_default_pyproject():
             "requires": ["setuptools>=61.0"],
             "build-backend": "setuptools.build_meta"
         },
-        "dependency-groups": {
-            "dev": []
-        }
+        "dependency-groups": {}
     }
 
 
-def update_pyproject_toml(dependencies, output_file='pyproject.toml', dev=False):
-    """Update or create pyproject.toml with the parsed dependencies."""
+def update_pyproject_toml(dependencies, output_file='pyproject.toml', group=None):
+    """Update or create pyproject.toml with the parsed dependencies.
+
+    Args:
+        dependencies: List of dependencies to add
+        output_file: Path to pyproject.toml
+        group: Optional group name. If None, updates project.dependencies
+    """
     try:
-        # Try to read existing pyproject.toml
         with open(output_file, 'rb') as f:
             pyproject_data = tomli.load(f)
             print(f"Found existing {output_file}")
     except FileNotFoundError:
-        # Create new pyproject.toml with default structure
         pyproject_data = create_default_pyproject()
         print(f"Creating new {output_file}")
 
-    if dev:
-        # Ensure dependency-groups.dev exists
+    if group:
+        # Handle dependency group
         if "dependency-groups" not in pyproject_data:
             pyproject_data["dependency-groups"] = {}
-        if "dev" not in pyproject_data["dependency-groups"]:
-            pyproject_data["dependency-groups"]["dev"] = []
+        if group not in pyproject_data["dependency-groups"]:
+            pyproject_data["dependency-groups"][group] = []
 
-        # Update dev dependencies
-        pyproject_data["dependency-groups"]["dev"] = dependencies
+        # Update group dependencies
+        pyproject_data["dependency-groups"][group] = dependencies
+        print(f"Updating dependencies for group: {group}")
     else:
         # Ensure project section exists
         if 'project' not in pyproject_data:
@@ -80,26 +81,8 @@ def update_pyproject_toml(dependencies, output_file='pyproject.toml', dev=False)
 
         # Update project dependencies
         pyproject_data['project']['dependencies'] = dependencies
+        print("Updating main project dependencies")
 
     # Write updated pyproject.toml
     with open(output_file, 'wb') as f:
         tomli_w.dump(pyproject_data, f)
-
-
-def main():
-    if len(sys.argv) != 2:
-        print("Usage: python r2toml.py requirements.in")
-        sys.exit(1)
-
-    requirements_file = sys.argv[1]
-    if not Path(requirements_file).exists():
-        print(f"Error: File {requirements_file} not found")
-        sys.exit(1)
-
-    dependencies = parse_requirements(requirements_file)
-    update_pyproject_toml(dependencies)
-    print(f"Successfully updated pyproject.toml with {len(dependencies)} dependencies")
-
-
-if __name__ == "__main__":
-    main()
