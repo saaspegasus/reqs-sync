@@ -5,7 +5,7 @@
 [![Tests](https://github.com/saaspegasus/reqs-sync/actions/workflows/test.yml/badge.svg)](https://github.com/saaspegasus/reqs-sync/actions/workflows/test.yml)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/saaspegasus/reqs-sync/blob/master/LICENSE)
 
-null
+A minimal tool to sync requirements to a pyproject.toml file from a pip-tools requirements.in file.
 
 ## Installation
 
@@ -28,14 +28,10 @@ python -m reqs_sync --help
 To contribute to this tool, first checkout the code. Then create a new virtual environment:
 ```bash
 cd reqs-sync
-python -m venv venv
-source venv/bin/activate
+uv sync
 ```
-Now install the dependencies and test dependencies:
-```bash
-pip install -e '.[test]'
-```
+
 To run the tests:
 ```bash
-python -m pytest
+uv run --group=test pytest
 ```
