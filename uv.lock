@@ -84,7 +84,7 @@ dependencies = [
     { name = "tomlkit" },
 ]
 
-[package.optional-dependencies]
+[package.dev-dependencies]
 test = [
     { name = "pytest" },
 ]
@@ -92,9 +92,11 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "click" },
-    { name = "pytest", marker = "extra == 'test'" },
     { name = "tomlkit" },
 ]
+
+[package.metadata.requires-dev]
+test = [{ name = "pytest" }]
 
 [[package]]
 name = "tomli"
