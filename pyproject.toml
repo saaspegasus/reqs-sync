@@ -11,8 +11,7 @@ classifiers = [
 ]
 dependencies = [
     "click",
-    "tomli-w>=1.0.0",
-    "tomli>=2.1.0",
+    "tomlkit",
 ]
 
 [build-system]
