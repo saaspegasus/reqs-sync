@@ -4,6 +4,7 @@ from .r2toml import parse_requirements, update_pyproject_toml
 
 
 @click.group()
+@click.version_option(package_name="reqs-sync")
 def cli():
     pass
 
